@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "dev:server": "npx tsx server/src/index.ts",
+    "dev:all": "npm run dev & npm run dev:server",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -17,6 +19,7 @@
     "react-dom": "^19.2.7",
     "react-icons": "^5.7.0",
     "react-parallax-tilt": "^1.7.333",
+    "react-router-dom": "^7.18.1",
     "react-tsparticles": "^2.12.2",
     "react-type-animation": "^3.2.0",
     "tailwindcss": "^4.3.3"
@@ -30,6 +33,8 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.7.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.0.0",
     "vite": "^8.1.1"
   }
 }
