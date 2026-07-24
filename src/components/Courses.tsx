@@ -1,101 +1,41 @@
-import { motion } from "framer-motion";
 import { useState } from "react";
-import {
-  FaShieldAlt,
-  FaSearch,
-  FaBug,
-  FaUserSecret,
-} from "react-icons/fa";
+import { Box, Container, Typography, Card, CardContent, Chip, Button, Collapse } from "@mui/material";
+import { motion } from "framer-motion";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ShieldIcon from "@mui/icons-material/Shield";
+import SearchIcon from "@mui/icons-material/Search";
+import BugReportIcon from "@mui/icons-material/BugReport";
+import SecurityIcon from "@mui/icons-material/Security";
 import type { Course } from "../types";
 
 const courses: Course[] = [
   {
-    id: "ceh",
-    title: "Certified Ethical Hacking",
-    abbreviation: "CEH",
+    id: "ceh", title: "Certified Ethical Hacking", abbreviation: "CEH",
     tagline: "Think Like a Hacker, Defend Like an Expert",
-    description:
-      "The world's most recognized ethical hacking certification. Learn to think and act like a hacker with 20 modules covering 340+ attack technologies.",
-    icon: <FaShieldAlt size={32} />,
-    topics: [
-      "Footprinting & Reconnaissance",
-      "Scanning Networks",
-      "Enumeration",
-      "Vulnerability Analysis",
-      "System Hacking",
-      "Malware Threats",
-      "Sniffing & Social Engineering",
-      "DoS & Session Hijacking",
-    ],
-    duration: "5 Days / 40 Hours",
-    level: "Beginner to Advanced",
-    color: "from-cyan-500 to-blue-600",
+    description: "The world's most recognized ethical hacking certification. Learn to think and act like a hacker with 20 modules covering 340+ attack technologies.",
+    icon: <ShieldIcon />, topics: ["Footprinting & Reconnaissance", "Scanning Networks", "Enumeration", "Vulnerability Analysis", "System Hacking", "Malware Threats", "Sniffing & Social Engineering", "DoS & Session Hijacking"],
+    duration: "5 Days / 40 Hours", level: "Beginner to Advanced", color: "#06b6d4",
   },
   {
-    id: "chfi",
-    title: "Computer Hacking Forensic Investigator",
-    abbreviation: "CHFI",
+    id: "chfi", title: "Computer Hacking Forensic Investigator", abbreviation: "CHFI",
     tagline: "Uncover Evidence, Track Attackers",
-    description:
-      "Master the art of detecting, investigating, and presenting cybercrime evidence. Essential for law enforcement and corporate security teams.",
-    icon: <FaSearch size={32} />,
-    topics: [
-      "Digital Evidence Collection",
-      "Disk Forensics",
-      "Network Forensics",
-      "Web Forensics",
-      "Database Forensics",
-      "Mobile Forensics",
-      "Cloud Forensics",
-      "Report Writing & Expert Testimony",
-    ],
-    duration: "5 Days / 40 Hours",
-    level: "Intermediate",
-    color: "from-purple-500 to-pink-600",
+    description: "Master the art of detecting, investigating, and presenting cybercrime evidence. Essential for law enforcement and corporate security teams.",
+    icon: <SearchIcon />, topics: ["Digital Evidence Collection", "Disk Forensics", "Network Forensics", "Web Forensics", "Database Forensics", "Mobile Forensics", "Cloud Forensics", "Report Writing & Expert Testimony"],
+    duration: "5 Days / 40 Hours", level: "Intermediate", color: "#8b5cf6",
   },
   {
-    id: "lpt",
-    title: "Licensed Penetration Tester",
-    abbreviation: "LPT",
+    id: "lpt", title: "Licensed Penetration Tester", abbreviation: "LPT",
     tagline: "The Ultimate Penetration Testing Credential",
-    description:
-      "EC-Council's most prestigious penetration testing certification. Prove your ability to perform advanced penetration tests across enterprise networks.",
-    icon: <FaBug size={32} />,
-    topics: [
-      "Advanced Scanning & Enumeration",
-      "Exploitation Techniques",
-      "Post Exploitation",
-      "Advanced Social Engineering",
-      "Web App Penetration Testing",
-      "Cloud Penetration Testing",
-      "IoT & OT Penetration Testing",
-      "Report Writing & Methodology",
-    ],
-    duration: "5 Days / 40 Hours",
-    level: "Advanced",
-    color: "from-red-500 to-orange-600",
+    description: "EC-Council's most prestigious penetration testing certification. Prove your ability to perform advanced penetration tests across enterprise networks.",
+    icon: <BugReportIcon />, topics: ["Advanced Scanning & Enumeration", "Exploitation Techniques", "Post Exploitation", "Advanced Social Engineering", "Web App Penetration Testing", "Cloud Penetration Testing", "IoT & OT Penetration Testing", "Report Writing & Methodology"],
+    duration: "5 Days / 40 Hours", level: "Advanced", color: "#ef4444",
   },
   {
-    id: "ecsa",
-    title: "EC-Council Certified Security Analyst",
-    abbreviation: "ECSA",
+    id: "ecsa", title: "EC-Council Certified Security Analyst", abbreviation: "ECSA",
     tagline: "Bridge the Gap Between Theory and Practice",
-    description:
-      "A hands-on penetration testing course that covers realistic attack vectors. Practice on real-world networks in EC-Council's Cyber Range.",
-    icon: <FaUserSecret size={32} />,
-    topics: [
-      "Modular Penetration Testing",
-      "Network Penetration Testing",
-      "Web Application Pen Testing",
-      "Social Engineering Pen Testing",
-      "Cloud Penetration Testing",
-      "IoT Penetration Testing",
-      "OTT Penetration Testing",
-      "Advanced Testing Methodologies",
-    ],
-    duration: "5 Days / 40 Hours",
-    level: "Intermediate to Advanced",
-    color: "from-green-500 to-emerald-600",
+    description: "A hands-on penetration testing course that covers realistic attack vectors. Practice on real-world networks in EC-Council's Cyber Range.",
+    icon: <SecurityIcon />, topics: ["Modular Penetration Testing", "Network Penetration Testing", "Web Application Pen Testing", "Social Engineering Pen Testing", "Cloud Penetration Testing", "IoT Penetration Testing", "OTT Penetration Testing", "Advanced Testing Methodologies"],
+    duration: "5 Days / 40 Hours", level: "Intermediate to Advanced", color: "#22c55e",
   },
 ];
 
@@ -103,119 +43,71 @@ export default function Courses() {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
-    <section id="courses" className="py-24 px-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <span className="text-cyan-400 text-sm font-bold tracking-widest uppercase">
+    <Box id="courses" sx={{ py: 12, px: 3 }}>
+      <Container maxWidth="lg">
+        <Box sx={{ textAlign: "center", mb: 8 }}>
+          <Typography variant="overline" sx={{ color: "primary.main", fontWeight: 700, letterSpacing: 3 }}>
             Our Programs
-          </span>
-          <h2 className="text-4xl md:text-5xl font-black mt-4">
+          </Typography>
+          <Typography variant="h3" sx={{ fontWeight: 900, mt: 1 }}>
             Industry-Recognized{" "}
-            <span className="bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+            <Box component="span" sx={{ background: "linear-gradient(90deg, #06b6d4, #8b5cf6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               Certifications
-            </span>
-          </h2>
-          <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
-            EC-Council certified courses designed to transform you into a
-            cybersecurity professional
-          </p>
-        </div>
+            </Box>
+          </Typography>
+          <Typography sx={{ color: "grey.400", mt: 2, maxWidth: 600, mx: "auto" }}>
+            EC-Council certified courses designed to transform you into a cybersecurity professional
+          </Typography>
+        </Box>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {courses.map((course, index) => (
-            <motion.div
-              key={course.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className={`bg-zinc-900 border rounded-2xl overflow-hidden transition-all duration-300 ${
-                expanded === course.id
-                  ? "border-cyan-500/50 shadow-lg shadow-cyan-500/10"
-                  : "border-cyan-500/10 hover:border-cyan-500/30"
-              }`}
-            >
-              <div className="p-8">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`w-14 h-14 rounded-xl bg-gradient-to-br ${course.color} flex items-center justify-center text-white`}
-                    >
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" }, gap: 3 }}>
+          {courses.map((course) => (
+            <motion.div key={course.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <Card sx={{ bgcolor: "#18181b", border: expanded === course.id ? `1px solid ${course.color}40` : "1px solid rgba(6,182,212,0.1)", height: "100%", transition: "all 0.3s" }}>
+                <CardContent sx={{ p: 4 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                    <Box sx={{ width: 50, height: 50, borderRadius: 2, bgcolor: `${course.color}20`, display: "flex", alignItems: "center", justifyContent: "center", color: course.color }}>
                       {course.icon}
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-cyan-400 tracking-wider">
-                        {course.abbreviation}
-                      </span>
-                      <h3 className="text-xl font-bold text-white">
-                        {course.title}
-                      </h3>
-                    </div>
-                  </div>
-                </div>
+                    </Box>
+                    <Box>
+                      <Typography variant="overline" sx={{ color: course.color, fontWeight: 700, fontSize: "0.7rem" }}>{course.abbreviation}</Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>{course.title}</Typography>
+                    </Box>
+                  </Box>
 
-                <p className="text-cyan-400 text-sm font-medium italic mb-3">
-                  &ldquo;{course.tagline}&rdquo;
-                </p>
+                  <Typography variant="body2" sx={{ color: course.color, fontStyle: "italic", mb: 1 }}>&ldquo;{course.tagline}&rdquo;</Typography>
+                  <Typography variant="body2" sx={{ color: "grey.400", mb: 2 }}>{course.description}</Typography>
 
-                <p className="text-gray-400 text-sm leading-relaxed mb-5">
-                  {course.description}
-                </p>
+                  <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+                    <Chip label={`⏱ ${course.duration}`} size="small" sx={{ bgcolor: "#27272a", color: "grey.400" }} />
+                    <Chip label={`📊 ${course.level}`} size="small" sx={{ bgcolor: "#27272a", color: "grey.400" }} />
+                  </Box>
 
-                <div className="flex gap-4 text-xs text-gray-500 mb-5">
-                  <span className="bg-zinc-800 px-3 py-1 rounded-full">
-                    ⏱ {course.duration}
-                  </span>
-                  <span className="bg-zinc-800 px-3 py-1 rounded-full">
-                    📊 {course.level}
-                  </span>
-                </div>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <Button size="small" endIcon={<ExpandMoreIcon sx={{ transform: expanded === course.id ? "rotate(180deg)" : "none", transition: "0.3s" }} />} onClick={() => setExpanded(expanded === course.id ? null : course.id)} sx={{ color: "primary.main", textTransform: "none" }}>
+                      {expanded === course.id ? "Hide Topics" : "View Topics"}
+                    </Button>
+                    <Button href="#contact" variant="contained" size="small" sx={{ background: `linear-gradient(90deg, ${course.color}, ${course.color}cc)`, textTransform: "none", fontWeight: 700, borderRadius: "50px", px: 3 }}>
+                      Enroll Now
+                    </Button>
+                  </Box>
 
-                <button
-                  onClick={() =>
-                    setExpanded(expanded === course.id ? null : course.id)
-                  }
-                  className="text-cyan-400 text-sm font-medium hover:text-cyan-300 transition-colors"
-                >
-                  {expanded === course.id
-                    ? "▲ Hide Topics"
-                    : "▼ View Course Topics"}
-                </button>
-
-                {expanded === course.id && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    className="mt-4 grid grid-cols-2 gap-2"
-                  >
-                    {course.topics.map((topic) => (
-                      <div
-                        key={topic}
-                        className="flex items-center gap-2 text-sm text-gray-300"
-                      >
-                        <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full" />
-                        {topic}
-                      </div>
-                    ))}
-                  </motion.div>
-                )}
-              </div>
-
-              <div className="px-8 py-4 bg-zinc-950 border-t border-cyan-500/10 flex justify-between items-center">
-                <span className="text-xs text-gray-500">
-                  Next batch starts soon
-                </span>
-                <a
-                  href="#contact"
-                  className={`bg-gradient-to-r ${course.color} px-5 py-2 rounded-full text-sm font-bold text-white hover:shadow-lg transition-all`}
-                >
-                  Enroll Now
-                </a>
-              </div>
+                  <Collapse in={expanded === course.id}>
+                    <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1, mt: 3, pt: 2, borderTop: "1px solid rgba(6,182,212,0.1)" }}>
+                      {course.topics.map((topic) => (
+                        <Box key={topic} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: course.color, flexShrink: 0 }} />
+                          <Typography variant="body2" sx={{ color: "grey.300", fontSize: "0.8rem" }}>{topic}</Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  </Collapse>
+                </CardContent>
+              </Card>
             </motion.div>
           ))}
-        </div>
-      </div>
-    </section>
+        </Box>
+      </Container>
+    </Box>
   );
 }

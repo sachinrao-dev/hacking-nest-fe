@@ -1,4 +1,13 @@
 import { useState, useEffect } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  Container,
+} from "@mui/material";
+import ShieldIcon from "@mui/icons-material/Shield";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -18,41 +27,67 @@ export default function Navbar() {
   ];
 
   return (
-    <nav
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-black/90 backdrop-blur-xl border-b border-cyan-500/20 py-3"
-          : "bg-transparent py-5"
-      }`}
+    <AppBar
+      position="fixed"
+      sx={{
+        background: scrolled ? "rgba(0,0,0,0.9)" : "transparent",
+        backdropFilter: "blur(20px)",
+        boxShadow: scrolled ? "0 1px 0 rgba(6,182,212,0.1)" : "none",
+        transition: "all 0.3s",
+      }}
     >
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        <a href="#home" className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-black font-black text-lg">HN</span>
-          </div>
-          <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-            Hacking Nest
-          </span>
-        </a>
-
-        <div className="hidden md:flex items-center gap-8">
-          {links.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-gray-300 hover:text-cyan-400 transition-colors text-sm font-medium"
+      <Container maxWidth="xl">
+        <Toolbar sx={{ justifyContent: "space-between", py: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <ShieldIcon sx={{ color: "primary.main", fontSize: 32 }} />
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                background: "linear-gradient(90deg, #06b6d4, #8b5cf6)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
             >
-              {link.label}
-            </a>
-          ))}
-          <a
-            href="#contact"
-            className="bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-2.5 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
-          >
-            Enroll Now
-          </a>
-        </div>
-      </div>
-    </nav>
+              Hacking Nest
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+            {links.map((link) => (
+              <Button
+                key={link.href}
+                href={link.href}
+                sx={{
+                  color: "grey.300",
+                  textTransform: "none",
+                  fontSize: "0.85rem",
+                  "&:hover": { color: "primary.main" },
+                  display: { xs: "none", md: "block" },
+                }}
+              >
+                {link.label}
+              </Button>
+            ))}
+            <Button
+              href="#contact"
+              variant="contained"
+              sx={{
+                background: "linear-gradient(90deg, #06b6d4, #2563eb)",
+                textTransform: "none",
+                fontWeight: 700,
+                px: 3,
+                borderRadius: "50px",
+                "&:hover": {
+                  background: "linear-gradient(90deg, #0891b2, #1d4ed8)",
+                },
+              }}
+            >
+              Enroll Now
+            </Button>
+          </Box>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }

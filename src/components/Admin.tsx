@@ -1,38 +1,18 @@
 import { useEffect, useState, useRef } from "react";
+import { Box, Typography, TextField, Button, Paper, Stack, Avatar, Chip, AppBar, Toolbar, Container, IconButton, MenuItem } from "@mui/material";
 import type { ContactFormData } from "../types";
+import { useToast } from "../hooks/useToast";
 
-interface Contact extends ContactFormData {
-  id: number;
-  createdAt: string;
-}
+interface Contact extends ContactFormData { id: number; createdAt: string; }
 
 const ADMIN_PASSWORD = "hackingnest2026";
 
-const courseColors: Record<string, string> = {
-  "CEH": "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
-  "CHFI": "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  "LPT": "bg-red-500/20 text-red-400 border-red-500/30",
-  "ECSA": "bg-green-500/20 text-green-400 border-green-500/30",
-};
-
-function getCourseColor(course: string): string {
-  const abbr = course.split(" ")[0] ?? "";
-  return courseColors[abbr] ?? "bg-gray-500/20 text-gray-400 border-gray-500/30";
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((w) => w.charAt(0))
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
+const courseColors: Record<string, string> = { CEH: "#06b6d4", CHFI: "#8b5cf6", LPT: "#ef4444", ECSA: "#22c55e" };
+function getCourseColor(c: string) { return courseColors[c.split(" ")[0] ?? ""] ?? "#71717a"; }
+function getInitials(n: string) { return n.split(" ").map((w) => w.charAt(0)).join("").toUpperCase().slice(0, 2); }
 
 export default function Admin() {
-  const [authenticated, setAuthenticated] = useState(
-    () => sessionStorage.getItem("admin_auth") === "true"
-  );
+  const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem("admin_auth") === "true");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -42,389 +22,168 @@ export default function Admin() {
   const [search, setSearch] = useState("");
   const [filterCourse, setFilterCourse] = useState("all");
   const wsRef = useRef<WebSocket | null>(null);
+  const { show, ToastComponent } = useToast();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setAuthenticated(true);
-      setError("");
-      sessionStorage.setItem("admin_auth", "true");
-    } else {
-      setError("Invalid password");
-    }
+    if (password === ADMIN_PASSWORD) { setAuthenticated(true); setError(""); sessionStorage.setItem("admin_auth", "true"); }
+    else setError("Invalid password");
   };
 
   useEffect(() => {
     if (!authenticated) return;
-
-    fetch("/api/contacts")
-      .then((res) => res.json())
-      .then((data: Contact[]) => setContacts(data))
-      .catch(console.error);
-
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const ws = new WebSocket(
-      `${protocol}//${window.location.hostname}:3001/ws`
-    );
+    fetch("/api/contacts").then((r) => r.json()).then((d: Contact[]) => setContacts(d)).catch(console.error);
+    const ws = new WebSocket(`${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:3001/ws`);
     wsRef.current = ws;
-
     ws.onopen = () => setConnected(true);
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data as string) as {
-        type: string;
-        contact: Contact;
-      };
-      if (data.type === "NEW_CONTACT") {
-        setContacts((prev) => [data.contact, ...prev]);
-        setNewCount((prev) => prev + 1);
-      }
-    };
-
+    ws.onmessage = (e) => { const d = JSON.parse(e.data) as { type: string; contact: Contact }; if (d.type === "NEW_CONTACT") { setContacts((p) => [d.contact, ...p]); setNewCount((p) => p + 1); show(`New enquiry from ${d.contact.name}`); } };
     ws.onclose = () => setConnected(false);
-
     return () => ws.close();
-  }, [authenticated]);
+  }, [authenticated, show]);
 
   const filtered = contacts.filter((c) => {
-    const matchSearch =
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.email.toLowerCase().includes(search.toLowerCase()) ||
-      (c.phone && c.phone.includes(search));
-    const matchCourse =
-      filterCourse === "all" ||
-      (c.course && c.course.toLowerCase().includes(filterCourse.toLowerCase()));
+    const s = search.toLowerCase();
+    const matchSearch = c.name.toLowerCase().includes(s) || c.email.toLowerCase().includes(s) || (c.phone && c.phone.includes(s));
+    const matchCourse = filterCourse === "all" || (c.course && c.course.toLowerCase().includes(filterCourse.toLowerCase()));
     return matchSearch && matchCourse;
   });
-
-  const uniqueCourses = [
-    ...new Set(contacts.map((c) => c.course).filter(Boolean)),
-  ];
+  const uniqueCourses = [...new Set(contacts.map((c) => c.course).filter(Boolean))];
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-black font-black text-2xl">HN</span>
-            </div>
-            <h1 className="text-3xl font-black text-white">Teacher Dashboard</h1>
-            <p className="text-gray-400 mt-2">
-              Enter your password to access the admin panel
-            </p>
-          </div>
-
-          <form
-            onSubmit={handleLogin}
-            className="bg-zinc-900 border border-cyan-500/20 rounded-2xl p-8"
-          >
-            <label className="text-sm text-gray-400 mb-2 block">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter admin password"
-              className="w-full p-4 rounded-xl bg-zinc-800 border border-cyan-500/20 text-white placeholder-gray-600 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none transition text-base mb-4"
-            />
-            {error && (
-              <p className="text-red-400 text-sm mb-4 bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-center">
-                {error}
-              </p>
-            )}
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 py-4 rounded-xl font-bold text-white text-base hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
-            >
-              Login
-            </button>
+      <Box sx={{ minHeight: "100vh", bgcolor: "#000", display: "flex", alignItems: "center", justifyContent: "center", px: 2 }}>
+        <Paper sx={{ p: 5, maxWidth: 400, width: "100%", bgcolor: "#18181b", border: "1px solid rgba(6,182,212,0.2)", textAlign: "center" }}>
+          <Avatar sx={{ width: 64, height: 64, bgcolor: "primary.main", mx: "auto", mb: 2, fontSize: "1.5rem", fontWeight: 900 }}>HN</Avatar>
+          <Typography variant="h5" sx={{ fontWeight: 900, mb: 1 }}>Teacher Dashboard</Typography>
+          <Typography variant="body2" sx={{ color: "grey.500", mb: 4 }}>Enter your password to access the admin panel</Typography>
+          <form onSubmit={handleLogin}>
+            <TextField type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter admin password" fullWidth size="small" sx={{ mb: 2 }} />
+            {error && <Typography variant="body2" sx={{ color: "error.main", mb: 2, bgcolor: "rgba(239,68,68,0.1)", p: 1.5, borderRadius: 1 }}>{error}</Typography>}
+            <Button type="submit" variant="contained" fullWidth sx={{ background: "linear-gradient(90deg, #06b6d4, #2563eb)", textTransform: "none", fontWeight: 700, py: 1.5 }}>Login</Button>
           </form>
-
-          <p className="text-center text-gray-600 text-xs mt-6">
-            Protected area. Unauthorized access is not allowed.
-          </p>
-        </div>
-      </div>
+          <Typography variant="caption" sx={{ color: "grey.600", mt: 3, display: "block" }}>Protected area. Unauthorized access is not allowed.</Typography>
+        </Paper>
+      </Box>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-      {/* Header */}
-      <div className="border-b border-cyan-500/10 px-8 py-5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-black font-black text-sm">HN</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">Teacher Dashboard</h1>
-              <p className="text-xs text-gray-500">
-                Manage student enquiries
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <span
-                className={`w-2 h-2 rounded-full ${connected ? "bg-green-500" : "bg-red-500"}`}
-              />
-              <span className="text-xs text-gray-400">
-                {connected ? "Live" : "Offline"}
-              </span>
-            </div>
-            <a
-              href="/"
-              className="text-xs text-gray-500 hover:text-cyan-400 transition-colors"
-            >
-              View Site
-            </a>
-            <button
-              onClick={() => {
-                sessionStorage.removeItem("admin_auth");
-                setAuthenticated(false);
-              }}
-              className="text-xs text-gray-500 hover:text-red-400 transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
+    <Box sx={{ minHeight: "100vh", bgcolor: "#000" }}>
+      <AppBar position="static" sx={{ bgcolor: "#0a0a0a", boxShadow: "0 1px 0 rgba(6,182,212,0.1)" }}>
+        <Container maxWidth="xl">
+          <Toolbar sx={{ justifyContent: "space-between" }}>
+            <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+              <Avatar sx={{ bgcolor: "primary.main", width: 36, height: 36, fontSize: "0.8rem", fontWeight: 900 }}>HN</Avatar>
+              <Box><Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>Teacher Dashboard</Typography><Typography variant="caption" sx={{ color: "grey.500" }}>Manage student enquiries</Typography></Box>
+            </Stack>
+            <Stack direction="row" spacing={3} sx={{ alignItems: "center" }}>
+              <Chip size="small" label={connected ? "Live" : "Offline"} color={connected ? "success" : "error"} variant="outlined" />
+              <IconButton href="/" size="small" sx={{ color: "grey.500", fontSize: "0.75rem" }}>View Site</IconButton>
+              <Button size="small" onClick={() => { sessionStorage.removeItem("admin_auth"); setAuthenticated(false); }} sx={{ color: "grey.500", textTransform: "none", fontSize: "0.75rem" }}>Logout</Button>
+            </Stack>
+          </Toolbar>
+        </Container>
+      </AppBar>
 
-      <div className="max-w-7xl mx-auto px-8 py-8">
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-zinc-900 border border-cyan-500/10 rounded-xl p-5">
-            <p className="text-3xl font-black text-cyan-400">
-              {contacts.length}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">Total Enquiries</p>
-          </div>
-          <div className="bg-zinc-900 border border-cyan-500/10 rounded-xl p-5">
-            <p className="text-3xl font-black text-green-400">{newCount}</p>
-            <p className="text-xs text-gray-500 mt-1">New Today</p>
-          </div>
-          <div className="bg-zinc-900 border border-cyan-500/10 rounded-xl p-5">
-            <p className="text-3xl font-black text-purple-400">
-              {uniqueCourses.length}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">Courses Enquired</p>
-          </div>
-          <div className="bg-zinc-900 border border-cyan-500/10 rounded-xl p-5">
-            <p className="text-3xl font-black text-yellow-400">
-              {contacts.filter((c) => c.phone).length}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">With Phone Number</p>
-          </div>
-        </div>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2, mb: 4 }}>
+          {[
+            { val: contacts.length, label: "Total Enquiries", color: "#06b6d4" },
+            { val: newCount, label: "New Today", color: "#22c55e" },
+            { val: uniqueCourses.length, label: "Courses Enquired", color: "#8b5cf6" },
+            { val: contacts.filter((c) => c.phone).length, label: "With Phone", color: "#eab308" },
+          ].map((s) => (
+            <Paper key={s.label} sx={{ p: 3, bgcolor: "#18181b", border: "1px solid rgba(6,182,212,0.1)" }}>
+              <Typography variant="h4" sx={{ fontWeight: 900, color: s.color }}>{s.val}</Typography>
+              <Typography variant="caption" sx={{ color: "grey.500" }}>{s.label}</Typography>
+            </Paper>
+          ))}
+        </Box>
 
-        {/* New submissions alert */}
-        {newCount > 0 && (
-          <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mb-6 flex items-center justify-between">
-            <p className="text-cyan-400 font-bold">
-              {newCount} new submission{newCount > 1 ? "s" : ""} received!
-            </p>
-            <button
-              onClick={() => setNewCount(0)}
-              className="text-xs text-cyan-400 hover:text-cyan-300"
-            >
-              Dismiss
-            </button>
-          </div>
-        )}
+        {newCount > 0 && <Paper sx={{ p: 2, mb: 3, bgcolor: "rgba(6,182,212,0.1)", border: "1px solid rgba(6,182,212,0.3)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Typography sx={{ color: "primary.main", fontWeight: 700 }}>{newCount} new submission{newCount > 1 ? "s" : ""} received!</Typography>
+          <Button size="small" onClick={() => setNewCount(0)} sx={{ color: "primary.main", textTransform: "none" }}>Dismiss</Button>
+        </Paper>}
 
-        {/* Search & Filter */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, email, or phone..."
-            className="flex-1 p-3 rounded-xl bg-zinc-900 border border-cyan-500/10 focus:border-cyan-400 outline-none transition text-sm"
-          />
-          <select
-            value={filterCourse}
-            onChange={(e) => setFilterCourse(e.target.value)}
-            className="p-3 rounded-xl bg-zinc-900 border border-cyan-500/10 focus:border-cyan-400 outline-none transition text-sm text-gray-300"
-          >
-            <option value="all">All Courses</option>
-            {uniqueCourses.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ mb: 3 }}>
+          <TextField value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, email, or phone..." size="small" fullWidth />
+          <TextField select value={filterCourse} onChange={(e) => setFilterCourse(e.target.value)} size="small" sx={{ minWidth: 150 }}>
+            <MenuItem value="all">All Courses</MenuItem>
+            {uniqueCourses.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+          </TextField>
+        </Stack>
 
-        {/* Content */}
         {filtered.length === 0 ? (
-          <div className="text-center py-20 text-gray-500">
-            <p className="text-2xl">
-              {contacts.length === 0
-                ? "No submissions yet"
-                : "No matching results"}
-            </p>
-            <p className="mt-2">
-              {contacts.length === 0
-                ? "Waiting for students to fill the form..."
-                : "Try a different search or filter"}
-            </p>
-          </div>
+          <Box sx={{ textAlign: "center", py: 10 }}><Typography sx={{ color: "grey.600" }}>{contacts.length === 0 ? "No submissions yet" : "No matching results"}</Typography></Box>
         ) : (
-          <div className="grid lg:grid-cols-5 gap-6">
-            {/* Student List */}
-            <div
-              className={`${selected ? "hidden lg:block" : ""} lg:col-span-2 space-y-2`}
-            >
-              {filtered.map((contact) => (
-                <button
-                  key={contact.id}
-                  onClick={() => setSelected(contact)}
-                  className={`w-full text-left p-4 rounded-xl border transition-all ${
-                    selected?.id === contact.id
-                      ? "bg-cyan-500/10 border-cyan-500/40"
-                      : "bg-zinc-900 border-cyan-500/10 hover:border-cyan-500/30"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs shrink-0">
-                      {getInitials(contact.name)}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-bold text-sm truncate">
-                        {contact.name}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {contact.email}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between mt-2">
-                    {contact.course && (
-                      <span
-                        className={`text-[10px] px-2 py-0.5 rounded-full border ${getCourseColor(contact.course)}`}
-                      >
-                        {contact.course.split(" ")[0]}
-                      </span>
-                    )}
-                    <span className="text-[10px] text-gray-600">
-                      {new Date(contact.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </button>
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "2fr 3fr" }, gap: 3 }}>
+            <Stack spacing={1.5} sx={{ maxHeight: "70vh", overflow: "auto" }}>
+              {filtered.map((c) => (
+                <Paper key={c.id} onClick={() => setSelected(c)} sx={{ p: 2.5, cursor: "pointer", bgcolor: selected?.id === c.id ? "rgba(6,182,212,0.1)" : "#18181b", border: selected?.id === c.id ? "1px solid rgba(6,182,212,0.4)" : "1px solid rgba(6,182,212,0.1)", transition: "all 0.2s", "&:hover": { borderColor: "rgba(6,182,212,0.3)" } }}>
+                  <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+                    <Avatar sx={{ bgcolor: "primary.main", width: 40, height: 40, fontWeight: 700, fontSize: "0.8rem" }}>{getInitials(c.name)}</Avatar>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }} noWrap>{c.name}</Typography>
+                      <Typography variant="caption" sx={{ color: "grey.500" }} noWrap>{c.email}</Typography>
+                    </Box>
+                  </Stack>
+                  <Stack direction="row" spacing={1} sx={{ mt: 1.5, alignItems: "center" }}>
+                    {c.course && <Chip label={c.course.split(" ")[0]} size="small" sx={{ bgcolor: `${getCourseColor(c.course)}20`, color: getCourseColor(c.course), border: `1px solid ${getCourseColor(c.course)}40`, fontSize: "0.65rem", height: 22 }} />}
+                    <Typography variant="caption" sx={{ color: "grey.600", ml: "auto" }}>{new Date(c.createdAt).toLocaleDateString()}</Typography>
+                  </Stack>
+                </Paper>
               ))}
-            </div>
+            </Stack>
 
-            {/* Student Detail */}
-            <div
-              className={`${selected ? "" : "hidden lg:block"} lg:col-span-3`}
-            >
+            <Box>
               {selected ? (
-                <div className="bg-zinc-900 border border-cyan-500/20 rounded-2xl p-8 sticky top-8">
-                  <button
-                    onClick={() => setSelected(null)}
-                    className="lg:hidden text-sm text-gray-500 hover:text-cyan-400 mb-4"
-                  >
-                    ← Back to list
-                  </button>
+                <Paper sx={{ p: 5, bgcolor: "#18181b", border: "1px solid rgba(6,182,212,0.2)", position: "sticky", top: 20 }}>
+                  <Stack direction="row" spacing={3} sx={{ alignItems: "center", mb: 5 }}>
+                    <Avatar sx={{ bgcolor: "primary.main", width: 64, height: 64, fontWeight: 900, fontSize: "1.5rem" }}>{getInitials(selected.name)}</Avatar>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: 900 }}>{selected.name}</Typography>
+                      <Typography variant="caption" sx={{ color: "grey.500" }}>Enquiry #{selected.id} • {new Date(selected.createdAt).toLocaleString()}</Typography>
+                    </Box>
+                  </Stack>
 
-                  {/* Profile Header */}
-                  <div className="flex items-center gap-5 mb-8">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-black text-xl">
-                      {getInitials(selected.name)}
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold">{selected.name}</h2>
-                      <p className="text-xs text-gray-500">
-                        Enquiry #{selected.id} •{" "}
-                        {new Date(selected.createdAt).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
+                  <Stack spacing={3}>
+                    <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+                      <Paper sx={{ p: 3, bgcolor: "#27272a" }}>
+                        <Typography variant="caption" sx={{ color: "grey.500", display: "block", mb: 0.5 }}>Email</Typography>
+                        <Typography variant="body2" component="a" href={`mailto:${selected.email}`} sx={{ color: "primary.main", textDecoration: "none", wordBreak: "break-all" }}>{selected.email}</Typography>
+                      </Paper>
+                      <Paper sx={{ p: 3, bgcolor: "#27272a" }}>
+                        <Typography variant="caption" sx={{ color: "grey.500", display: "block", mb: 0.5 }}>Phone</Typography>
+                        {selected.phone ? <Typography variant="body2" component="a" href={`tel:${selected.phone}`} sx={{ color: "primary.main", textDecoration: "none" }}>{selected.phone}</Typography> : <Typography variant="body2" sx={{ color: "grey.600" }}>Not provided</Typography>}
+                      </Paper>
+                    </Box>
 
-                  {/* Details Grid */}
-                  <div className="space-y-5">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-zinc-800 rounded-xl p-4">
-                        <p className="text-xs text-gray-500 mb-1">Email</p>
-                        <a
-                          href={`mailto:${selected.email}`}
-                          className="text-sm text-cyan-400 hover:underline break-all"
-                        >
-                          {selected.email}
-                        </a>
-                      </div>
-                      <div className="bg-zinc-800 rounded-xl p-4">
-                        <p className="text-xs text-gray-500 mb-1">Phone</p>
-                        {selected.phone ? (
-                          <a
-                            href={`tel:${selected.phone}`}
-                            className="text-sm text-cyan-400 hover:underline"
-                          >
-                            {selected.phone}
-                          </a>
-                        ) : (
-                          <p className="text-sm text-gray-600">Not provided</p>
-                        )}
-                      </div>
-                    </div>
+                    <Paper sx={{ p: 3, bgcolor: "#27272a" }}>
+                      <Typography variant="caption" sx={{ color: "grey.500", display: "block", mb: 1 }}>Interested Course</Typography>
+                      {selected.course ? <Chip label={selected.course} size="small" sx={{ bgcolor: `${getCourseColor(selected.course)}20`, color: getCourseColor(selected.course), border: `1px solid ${getCourseColor(selected.course)}40` }} /> : <Typography variant="body2" sx={{ color: "grey.600" }}>Not specified</Typography>}
+                    </Paper>
 
-                    <div className="bg-zinc-800 rounded-xl p-4">
-                      <p className="text-xs text-gray-500 mb-2">
-                        Interested Course
-                      </p>
-                      {selected.course ? (
-                        <span
-                          className={`inline-block text-xs px-3 py-1.5 rounded-full border font-medium ${getCourseColor(selected.course)}`}
-                        >
-                          {selected.course}
-                        </span>
-                      ) : (
-                        <p className="text-sm text-gray-600">Not specified</p>
-                      )}
-                    </div>
+                    <Paper sx={{ p: 3, bgcolor: "#27272a" }}>
+                      <Typography variant="caption" sx={{ color: "grey.500", display: "block", mb: 1 }}>Message</Typography>
+                      <Typography variant="body2" sx={{ color: "grey.300" }}>{selected.message || "No message"}</Typography>
+                    </Paper>
 
-                    <div className="bg-zinc-800 rounded-xl p-4">
-                      <p className="text-xs text-gray-500 mb-2">Message</p>
-                      {selected.message ? (
-                        <p className="text-sm text-gray-300 leading-relaxed">
-                          {selected.message}
-                        </p>
-                      ) : (
-                        <p className="text-sm text-gray-600">No message</p>
-                      )}
-                    </div>
-
-                    {/* Quick Actions */}
-                    <div className="flex gap-3 pt-2">
-                      <a
-                        href={`mailto:${selected.email}?subject=Hacking Nest - Course Details&body=Hi ${selected.name},%0A%0AThank you for your interest in ${selected.course ?? "our courses"} at Hacking Nest.%0A%0AHere are the course details...`}
-                        className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 py-3 rounded-xl font-bold text-sm text-center hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
-                      >
-                        📧 Reply via Email
-                      </a>
-                      {selected.phone && (
-                        <a
-                          href={`https://wa.me/91${selected.phone.replace(/\D/g, "")}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 bg-green-500/20 border border-green-500/30 py-3 rounded-xl font-bold text-sm text-center text-green-400 hover:bg-green-500/30 transition-all"
-                        >
-                          💬 WhatsApp
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                    <Stack direction="row" spacing={2}>
+                      <Button href={`mailto:${selected.email}?subject=Hacking Nest - Course Details&body=Hi ${selected.name},%0A%0AThank you for your interest in ${selected.course ?? "our courses"} at Hacking Nest.`} variant="contained" fullWidth sx={{ background: "linear-gradient(90deg, #06b6d4, #2563eb)", textTransform: "none", fontWeight: 700, py: 1.5 }}>📧 Reply via Email</Button>
+                      {selected.phone && <Button href={`https://wa.me/91${selected.phone.replace(/\D/g, "")}`} target="_blank" variant="contained" fullWidth sx={{ bgcolor: "#22c55e", textTransform: "none", fontWeight: 700, py: 1.5, "&:hover": { bgcolor: "#16a34a" } }}>💬 WhatsApp</Button>}
+                    </Stack>
+                  </Stack>
+                </Paper>
               ) : (
-                <div className="hidden lg:flex items-center justify-center h-64 text-gray-600">
-                  <p>Select a student to view details</p>
-                </div>
+                <Box sx={{ display: { xs: "none", lg: "flex" }, alignItems: "center", justifyContent: "center", height: 300, color: "grey.600" }}>
+                  <Typography>Select a student to view details</Typography>
+                </Box>
               )}
-            </div>
-          </div>
+            </Box>
+          </Box>
         )}
-      </div>
-    </div>
+      </Container>
+      {ToastComponent}
+    </Box>
   );
 }

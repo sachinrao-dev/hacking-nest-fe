@@ -1,3 +1,4 @@
+import { Box, Container, Typography } from "@mui/material";
 import type { Stat } from "../types";
 
 const stats: Stat[] = [
@@ -9,19 +10,29 @@ const stats: Stat[] = [
 
 export default function Stats() {
   return (
-    <section className="py-16 border-y border-cyan-500/10 bg-zinc-950">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+    <Box sx={{ py: 5, borderTop: "1px solid rgba(6,182,212,0.1)", borderBottom: "1px solid rgba(6,182,212,0.1)", bgcolor: "#0a0a0a" }}>
+      <Container maxWidth="lg">
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }, gap: 4 }}>
           {stats.map((stat) => (
-            <div key={stat.value} className="text-center">
-              <p className="text-4xl md:text-5xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <Box key={stat.value} sx={{ textAlign: "center" }}>
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: 900,
+                  background: "linear-gradient(90deg, #06b6d4, #2563eb)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
                 {stat.value}
-              </p>
-              <p className="text-gray-500 mt-2 text-sm">{stat.label}</p>
-            </div>
+              </Typography>
+              <Typography variant="body2" sx={{ color: "grey.500", mt: 1 }}>
+                {stat.label}
+              </Typography>
+            </Box>
           ))}
-        </div>
-      </div>
-    </section>
+        </Box>
+      </Container>
+    </Box>
   );
 }

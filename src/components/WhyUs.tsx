@@ -1,75 +1,41 @@
+import { Box, Container, Typography, Card, CardContent } from "@mui/material";
 import { motion } from "framer-motion";
 
 const features = [
-  {
-    icon: "🖥",
-    title: "Hands-On Lab Environment",
-    desc: "Practice on real-world scenarios in our dedicated cyber range with 200+ lab exercises.",
-  },
-  {
-    icon: "👨‍🏫",
-    title: "Expert Instructors",
-    desc: "Learn from industry professionals with 10+ years of cybersecurity experience.",
-  },
-  {
-    icon: "📜",
-    title: "EC-Council Certified",
-    desc: "Official EC-Council training partner with globally recognized certifications.",
-  },
-  {
-    icon: "💼",
-    title: "Placement Assistance",
-    desc: "Resume building, mock interviews, and direct referrals to top cybersecurity firms.",
-  },
-  {
-    icon: "🌐",
-    title: "Flexible Batches",
-    desc: "Weekday & weekend batches. Online and offline modes available.",
-  },
-  {
-    icon: "lifetime",
-    title: "Lifetime Access",
-    desc: "Get lifetime access to course materials, lab environments, and future updates.",
-  },
+  { icon: "🖥", title: "Hands-On Lab Environment", desc: "Practice on real-world scenarios in our dedicated cyber range with 200+ lab exercises." },
+  { icon: "👨‍🏫", title: "Expert Instructors", desc: "Learn from industry professionals with 10+ years of cybersecurity experience." },
+  { icon: "📜", title: "EC-Council Certified", desc: "Official EC-Council training partner with globally recognized certifications." },
+  { icon: "💼", title: "Placement Assistance", desc: "Resume building, mock interviews, and direct referrals to top cybersecurity firms." },
+  { icon: "🌐", title: "Flexible Batches", desc: "Weekday & weekend batches. Online and offline modes available." },
+  { icon: "🔄", title: "Lifetime Access", desc: "Get lifetime access to course materials, lab environments, and future updates." },
 ];
 
 export default function WhyUs() {
   return (
-    <section id="why-us" className="py-24 px-6 bg-zinc-950">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <span className="text-cyan-400 text-sm font-bold tracking-widest uppercase">
-            Why Hacking Nest
-          </span>
-          <h2 className="text-4xl md:text-5xl font-black mt-4">
+    <Box id="why-us" sx={{ py: 12, px: 3, bgcolor: "#0a0a0a" }}>
+      <Container maxWidth="lg">
+        <Box sx={{ textAlign: "center", mb: 8 }}>
+          <Typography variant="overline" sx={{ color: "primary.main", fontWeight: 700, letterSpacing: 3 }}>Why Hacking Nest</Typography>
+          <Typography variant="h3" sx={{ fontWeight: 900, mt: 1 }}>
             Why Students{" "}
-            <span className="bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Choose Us
-            </span>
-          </h2>
-        </div>
+            <Box component="span" sx={{ background: "linear-gradient(90deg, #06b6d4, #8b5cf6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Choose Us</Box>
+          </Typography>
+        </Box>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-zinc-900 border border-cyan-500/10 rounded-2xl p-8 hover:border-cyan-500/30 hover:-translate-y-1 transition-all"
-            >
-              <span className="text-4xl block mb-4">
-                {feature.icon === "lifetime" ? "🔄" : feature.icon}
-              </span>
-              <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                {feature.desc}
-              </p>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: 3 }}>
+          {features.map((f, i) => (
+            <motion.div key={f.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+              <Card sx={{ bgcolor: "#18181b", border: "1px solid rgba(6,182,212,0.1)", height: "100%", transition: "all 0.3s", "&:hover": { borderColor: "rgba(6,182,212,0.3)", transform: "translateY(-4px)" } }}>
+                <CardContent sx={{ p: 4 }}>
+                  <Typography variant="h3" sx={{ mb: 2 }}>{f.icon}</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>{f.title}</Typography>
+                  <Typography variant="body2" sx={{ color: "grey.400" }}>{f.desc}</Typography>
+                </CardContent>
+              </Card>
             </motion.div>
           ))}
-        </div>
-      </div>
-    </section>
+        </Box>
+      </Container>
+    </Box>
   );
 }

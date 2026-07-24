@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from "react";
+import { Box, Container, Typography, TextField, Button, MenuItem, Paper, Stack } from "@mui/material";
 import type { ContactFormData } from "../types";
+import { useToast } from "../hooks/useToast";
 
 const courseOptions = [
   "CEH - Certified Ethical Hacking",
@@ -9,196 +11,80 @@ const courseOptions = [
 ];
 
 export default function Contact() {
-  const [formData, setFormData] = useState<ContactFormData>({
-    name: "",
-    email: "",
-    phone: "",
-    course: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState<ContactFormData>({ name: "", email: "", phone: "", course: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { show, ToastComponent } = useToast();
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) throw new Error("Failed to send");
-
-      alert(
-        "Thank you for your interest! Our team will contact you within 24 hours."
-      );
+      const res = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
+      if (!res.ok) throw new Error("Failed");
+      show("Thank you for your interest! Our team will contact you within 24 hours.");
       setFormData({ name: "", email: "", phone: "", course: "", message: "" });
-    } catch {
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    } catch { show("Something went wrong. Please try again.", "error"); }
+    finally { setIsSubmitting(false); }
   };
 
-  return (
-    <section id="contact" className="py-24 px-6 bg-zinc-950">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-12 items-start">
-          <div>
-            <span className="text-cyan-400 text-sm font-bold tracking-widest uppercase">
-              Get In Touch
-            </span>
-            <h2 className="text-4xl md:text-5xl font-black mt-4 mb-6">
+  return (<>
+    <Box id="contact" sx={{ py: 12, px: 3, bgcolor: "#0a0a0a" }}>
+      <Container maxWidth="lg">
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 8, alignItems: "start" }}>
+          <Box>
+            <Typography variant="overline" sx={{ color: "primary.main", fontWeight: 700, letterSpacing: 3 }}>Get In Touch</Typography>
+            <Typography variant="h3" sx={{ fontWeight: 900, mt: 1, mb: 3 }}>
               Ready to Start Your{" "}
-              <span className="bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                Cybersecurity Journey?
-              </span>
-            </h2>
-            <p className="text-gray-400 leading-relaxed mb-8">
-              Fill out the form and our counselors will get back to you within
-              24 hours with all the details about the course, fees, and batch
-              schedules.
-            </p>
+              <Box component="span" sx={{ background: "linear-gradient(90deg, #06b6d4, #8b5cf6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Cybersecurity Journey?</Box>
+            </Typography>
+            <Typography sx={{ color: "grey.400", mb: 6 }}>
+              Fill out the form and our counselors will get back to you within 24 hours with all the details about the course, fees, and batch schedules.
+            </Typography>
 
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center">
-                  <span>📍</span>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Visit Us</p>
-                  <p className="text-sm">Hyderabad, India</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center">
-                  <span>📧</span>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="text-sm">info@hackingnest.com</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center">
-                  <span>📞</span>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Call Us</p>
-                  <p className="text-sm">+91 89206 70367</p>
-                </div>
-              </div>
-            </div>
-          </div>
+            <Stack spacing={3}>
+              {[
+                { icon: "📍", label: "Visit Us", value: "V Floor 44 Tower, Jenny Plaza, No 7,\nBharathiar Salai, NIT Trichy,\nTiruchirappalli - 620001" },
+                { icon: "📧", label: "Email", value: "info@hackingnest.com" },
+                { icon: "📞", label: "Call Us", value: "+91 89206 70367" },
+              ].map((item) => (
+                <Stack key={item.label} direction="row" spacing={2} sx={{ alignItems: "flex-start" }}>
+                  <Paper sx={{ width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "rgba(6,182,212,0.1)", flexShrink: 0 }}>{item.icon}</Paper>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: "grey.500" }}>{item.label}</Typography>
+                    <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>{item.value}</Typography>
+                  </Box>
+                </Stack>
+              ))}
+            </Stack>
+          </Box>
 
-          <form
-            onSubmit={handleSubmit}
-            className="bg-zinc-900 border border-cyan-500/10 rounded-2xl p-8 space-y-5"
-          >
-            <div>
-              <label className="text-sm text-gray-400 mb-1 block">
-                Full Name *
-              </label>
-              <input
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Enter your full name"
-                required
-                className="w-full p-4 rounded-xl bg-zinc-800 border border-cyan-500/10 focus:border-cyan-400 outline-none transition text-sm"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm text-gray-400 mb-1 block">
-                  Email *
-                </label>
-                <input
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="your@email.com"
-                  required
-                  className="w-full p-4 rounded-xl bg-zinc-800 border border-cyan-500/10 focus:border-cyan-400 outline-none transition text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-gray-400 mb-1 block">
-                  Phone *
-                </label>
-                <input
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="+91 89206 70367"
-                  required
-                  className="w-full p-4 rounded-xl bg-zinc-800 border border-cyan-500/10 focus:border-cyan-400 outline-none transition text-sm"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-400 mb-1 block">
-                Interested Course *
-              </label>
-              <select
-                name="course"
-                value={formData.course}
-                onChange={handleChange}
-                required
-                className="w-full p-4 rounded-xl bg-zinc-800 border border-cyan-500/10 focus:border-cyan-400 outline-none transition text-sm text-gray-300"
-              >
-                <option value="">Select a course</option>
-                {courseOptions.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-400 mb-1 block">
-                Message (Optional)
-              </label>
-              <textarea
-                name="message"
-                rows={4}
-                value={formData.message}
-                onChange={handleChange}
-                placeholder="Any questions? Tell us about your background..."
-                className="w-full p-4 rounded-xl bg-zinc-800 border border-cyan-500/10 focus:border-cyan-400 outline-none transition text-sm"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 py-4 rounded-xl font-bold hover:shadow-xl hover:shadow-cyan-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? "Submitting..." : "Submit Enquiry"}
-            </button>
-
-            <p className="text-xs text-gray-500 text-center">
-              By submitting, you agree to our privacy policy. No spam, ever.
-            </p>
-          </form>
-        </div>
-      </div>
-    </section>
-  );
+          <Paper sx={{ p: 5, bgcolor: "#18181b", border: "1px solid rgba(6,182,212,0.1)" }}>
+            <form onSubmit={handleSubmit}>
+              <Stack spacing={3}>
+                <TextField name="name" label="Full Name" value={formData.name} onChange={handleChange} required fullWidth size="small" />
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                  <TextField name="email" label="Email" type="email" value={formData.email} onChange={handleChange} required fullWidth size="small" />
+                  <TextField name="phone" label="Phone" type="tel" value={formData.phone} onChange={handleChange} required fullWidth size="small" />
+                </Stack>
+                <TextField name="course" label="Interested Course" value={formData.course} onChange={handleChange} required select fullWidth size="small">
+                  <MenuItem value="">Select a course</MenuItem>
+                  {courseOptions.map((opt) => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                </TextField>
+                <TextField name="message" label="Message (Optional)" value={formData.message} onChange={handleChange} multiline rows={4} fullWidth size="small" />
+                <Button type="submit" variant="contained" size="large" disabled={isSubmitting} sx={{ background: "linear-gradient(90deg, #06b6d4, #2563eb)", textTransform: "none", fontWeight: 700, py: 1.5, borderRadius: 2, "&:hover": { background: "linear-gradient(90deg, #0891b2, #1d4ed8)" } }}>
+                  {isSubmitting ? "Submitting..." : "Submit Enquiry"}
+                </Button>
+                <Typography variant="caption" sx={{ color: "grey.600", textAlign: "center" }}>By submitting, you agree to our privacy policy. No spam, ever.</Typography>
+              </Stack>
+            </form>
+          </Paper>
+        </Box>
+      </Container>
+    </Box>
+    {ToastComponent}
+    </>);
 }

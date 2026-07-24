@@ -1,125 +1,83 @@
+import { Box, Container, Typography, Grid, Stack, IconButton } from "@mui/material";
+
+const courseLinks = [
+  "CEH — Certified Ethical Hacking",
+  "CHFI — Forensic Investigator",
+  "LPT — Penetration Tester",
+  "ECSA — Security Analyst",
+];
+
+const quickLinks = ["Home", "Why Choose Us", "Student Reviews", "Contact Us"];
+
 export default function Footer() {
   return (
     <>
-      <footer className="py-12 px-6 border-t border-cyan-500/10">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-10">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-black font-black text-xs">HN</span>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+      <Box component="footer" sx={{ py: 6, px: 3, borderTop: "1px solid rgba(6,182,212,0.1)" }}>
+        <Container maxWidth="lg">
+          <Grid container spacing={5}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, background: "linear-gradient(90deg, #06b6d4, #8b5cf6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", mb: 2 }}>
                 Hacking Nest
-              </span>
-            </div>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              India&apos;s premier cybersecurity training institute. EC-Council
-              certified courses with placement assistance.
-            </p>
-          </div>
+              </Typography>
+              <Typography variant="body2" sx={{ color: "grey.500" }}>
+                India&apos;s premier cybersecurity training institute. EC-Council certified courses with placement assistance.
+              </Typography>
+            </Grid>
 
-          <div>
-            <h3 className="font-bold text-sm mb-4">Courses</h3>
-            <ul className="space-y-2 text-sm text-gray-500">
-              <li>
-                <a href="#courses" className="hover:text-cyan-400 transition-colors">
-                  CEH — Certified Ethical Hacking
-                </a>
-              </li>
-              <li>
-                <a href="#courses" className="hover:text-cyan-400 transition-colors">
-                  CHFI — Forensic Investigator
-                </a>
-              </li>
-              <li>
-                <a href="#courses" className="hover:text-cyan-400 transition-colors">
-                  LPT — Penetration Tester
-                </a>
-              </li>
-              <li>
-                <a href="#courses" className="hover:text-cyan-400 transition-colors">
-                  ECSA — Security Analyst
-                </a>
-              </li>
-            </ul>
-          </div>
+            <Grid size={{ xs: 12, md: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 2 }}>Courses</Typography>
+              <Stack spacing={1}>
+                {courseLinks.map((c) => (
+                  <Typography key={c} variant="body2" component="a" href="#courses" sx={{ color: "grey.500", textDecoration: "none", "&:hover": { color: "primary.main" } }}>{c}</Typography>
+                ))}
+              </Stack>
+            </Grid>
 
-          <div>
-            <h3 className="font-bold text-sm mb-4">Quick Links</h3>
-            <ul className="space-y-2 text-sm text-gray-500">
-              <li>
-                <a href="#home" className="hover:text-cyan-400 transition-colors">
-                  Home
-                </a>
-              </li>
-              <li>
-                <a href="#why-us" className="hover:text-cyan-400 transition-colors">
-                  Why Choose Us
-                </a>
-              </li>
-              <li>
-                <a href="#testimonials" className="hover:text-cyan-400 transition-colors">
-                  Student Reviews
-                </a>
-              </li>
-              <li>
-                <a href="#contact" className="hover:text-cyan-400 transition-colors">
-                  Contact Us
-                </a>
-              </li>
-            </ul>
-          </div>
+            <Grid size={{ xs: 12, md: 2 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 2 }}>Quick Links</Typography>
+              <Stack spacing={1}>
+                {quickLinks.map((l) => (
+                  <Typography key={l} variant="body2" component="a" href={`#${l.toLowerCase().replace(/\s/g, "-")}`} sx={{ color: "grey.500", textDecoration: "none", "&:hover": { color: "primary.main" } }}>{l}</Typography>
+                ))}
+              </Stack>
+            </Grid>
 
-          <div>
-            <h3 className="font-bold text-sm mb-4">Contact</h3>
-            <ul className="space-y-2 text-sm text-gray-500">
-              <li>Hyderabad, India</li>
-              <li>info@hackingnest.com</li>
-              <li>+91 89206 70367</li>
-            </ul>
-            <div className="flex gap-3 mt-4">
-              <a
-                href="https://wa.me/918920670367"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 bg-green-500/20 rounded-lg flex items-center justify-center text-green-400 hover:bg-green-500/30 transition-colors text-sm"
-              >
-                WA
-              </a>
-              <a
-                href="#"
-                className="w-9 h-9 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400 hover:bg-blue-500/30 transition-colors text-sm"
-              >
-                YT
-              </a>
-              <a
-                href="#"
-                className="w-9 h-9 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400 hover:bg-purple-500/30 transition-colors text-sm"
-              >
-                IG
-              </a>
-            </div>
-          </div>
-        </div>
+            <Grid size={{ xs: 12, md: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 2 }}>Contact</Typography>
+              <Stack spacing={1}>
+                <Typography variant="body2" sx={{ color: "grey.500" }}>V Floor 44 Tower, Jenny Plaza,</Typography>
+                <Typography variant="body2" sx={{ color: "grey.500" }}>No 7, Bharathiar Salai, NIT Trichy,</Typography>
+                <Typography variant="body2" sx={{ color: "grey.500" }}>Tiruchirappalli - 620001</Typography>
+                <Typography variant="body2" sx={{ color: "grey.500" }}>info@hackingnest.com</Typography>
+                <Typography variant="body2" sx={{ color: "grey.500" }}>+91 89206 70367</Typography>
+              </Stack>
+              <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                <IconButton href="https://wa.me/918920670367" target="_blank" size="small" sx={{ bgcolor: "rgba(34,197,94,0.2)", color: "#22c55e", "&:hover": { bgcolor: "rgba(34,197,94,0.3)" } }}>WA</IconButton>
+                <IconButton size="small" sx={{ bgcolor: "rgba(37,99,235,0.2)", color: "#2563eb", "&:hover": { bgcolor: "rgba(37,99,235,0.3)" } }}>YT</IconButton>
+                <IconButton size="small" sx={{ bgcolor: "rgba(139,92,246,0.2)", color: "#8b5cf6", "&:hover": { bgcolor: "rgba(139,92,246,0.3)" } }}>IG</IconButton>
+              </Stack>
+            </Grid>
+          </Grid>
 
-        <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-cyan-500/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-600 text-xs">
-            &copy; {new Date().getFullYear()} Hacking Nest. All rights reserved.
-          </p>
-          <p className="text-gray-600 text-xs">
-            EC-Council Authorized Training Partner
-          </p>
-        </div>
-      </footer>
+          <Box sx={{ mt: 6, pt: 3, borderTop: "1px solid rgba(6,182,212,0.1)", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
+            <Typography variant="caption" sx={{ color: "grey.600" }}>&copy; {new Date().getFullYear()} Hacking Nest. All rights reserved.</Typography>
+            <Typography variant="caption" sx={{ color: "grey.600" }}>EC-Council Authorized Training Partner</Typography>
+          </Box>
+        </Container>
+      </Box>
 
-      <a
+      <IconButton
         href="https://wa.me/918920670367"
         target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-5 right-5 bg-green-500 text-white px-5 py-3 rounded-full shadow-2xl hover:scale-105 transition z-50 font-bold text-sm flex items-center gap-2"
+        sx={{
+          position: "fixed", bottom: 20, right: 20, bgcolor: "#22c55e", color: "#fff",
+          width: 56, height: 56, borderRadius: "50%", boxShadow: "0 4px 20px rgba(34,197,94,0.4)",
+          "&:hover": { bgcolor: "#16a34a", transform: "scale(1.1)" }, transition: "all 0.2s",
+          fontSize: "0.75rem", fontWeight: 700,
+        }}
       >
-        💬 Chat on WhatsApp
-      </a>
+        💬
+      </IconButton>
     </>
   );
 }
