@@ -32,8 +32,10 @@ export default function Admin() {
 
   useEffect(() => {
     if (!authenticated) return;
-    fetch("/api/contacts").then((r) => r.json()).then((d: Contact[]) => setContacts(d)).catch(console.error);
-    const ws = new WebSocket(`${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:3001/ws`);
+    const apiUrl = import.meta.env.VITE_API_URL || "";
+    const wsUrl = import.meta.env.VITE_WS_URL || `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:3001`;
+    fetch(`${apiUrl}/api/contacts`).then((r) => r.json()).then((d: Contact[]) => setContacts(d)).catch(console.error);
+    const ws = new WebSocket(`${wsUrl}/ws`);
     wsRef.current = ws;
     ws.onopen = () => setConnected(true);
     ws.onmessage = (e) => { const d = JSON.parse(e.data) as { type: string; contact: Contact }; if (d.type === "NEW_CONTACT") { setContacts((p) => [d.contact, ...p]); setNewCount((p) => p + 1); show(`New enquiry from ${d.contact.name}`); } };
