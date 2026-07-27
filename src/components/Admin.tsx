@@ -6,6 +6,7 @@ import { useToast } from "../hooks/useToast";
 interface Contact extends ContactFormData { id: number; createdAt: string; }
 
 const ADMIN_PASSWORD = "hackingnest2026";
+const POLL_INTERVAL = 5000;
 
 const courseColors: Record<string, string> = { CEH: "#06b6d4", CHFI: "#8b5cf6", LPT: "#ef4444", ECSA: "#22c55e" };
 function getCourseColor(c: string) { return courseColors[c.split(" ")[0] ?? ""] ?? "#71717a"; }
@@ -16,12 +17,11 @@ export default function Admin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [connected, setConnected] = useState(false);
   const [newCount, setNewCount] = useState(0);
   const [selected, setSelected] = useState<Contact | null>(null);
   const [search, setSearch] = useState("");
   const [filterCourse, setFilterCourse] = useState("all");
-  const wsRef = useRef<WebSocket | null>(null);
+  const prevCountRef = useRef(0);
   const { show, ToastComponent } = useToast();
 
   const handleLogin = (e: React.FormEvent) => {
@@ -32,16 +32,33 @@ export default function Admin() {
 
   useEffect(() => {
     if (!authenticated) return;
-    const apiUrl = import.meta.env.VITE_API_URL || "";
-    const wsUrl = import.meta.env.VITE_WS_URL || `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:3001`;
-    fetch(`${apiUrl}/api/contacts`).then((r) => r.json()).then((d: Contact[]) => setContacts(d)).catch(console.error);
-    const ws = new WebSocket(`${wsUrl}/ws`);
-    wsRef.current = ws;
-    ws.onopen = () => setConnected(true);
-    ws.onmessage = (e) => { const d = JSON.parse(e.data) as { type: string; contact: Contact }; if (d.type === "NEW_CONTACT") { setContacts((p) => [d.contact, ...p]); setNewCount((p) => p + 1); show(`New enquiry from ${d.contact.name}`); } };
-    ws.onclose = () => setConnected(false);
-    return () => ws.close();
+
+    async function fetchContacts() {
+      try {
+        const res = await fetch("/api/contacts");
+        const data: Contact[] = await res.json();
+        setContacts((prev) => {
+          if (prev.length > 0 && data.length > prev.length) {
+            const diff = data.length - prev.length;
+            setNewCount((c) => c + diff);
+            show(`New enquiry from ${data[0]?.name ?? "a student"}`);
+          }
+          return data;
+        });
+      } catch { /* ignore */ }
+    }
+
+    fetchContacts();
+    const interval = setInterval(fetchContacts, POLL_INTERVAL);
+    return () => clearInterval(interval);
   }, [authenticated, show]);
+
+  useEffect(() => {
+    if (contacts.length > prevCountRef.current) {
+      setNewCount(contacts.length - prevCountRef.current);
+    }
+    prevCountRef.current = contacts.length;
+  }, [contacts.length]);
 
   const filtered = contacts.filter((c) => {
     const s = search.toLowerCase();
@@ -65,6 +82,7 @@ export default function Admin() {
           </form>
           <Typography variant="caption" sx={{ color: "grey.600", mt: 3, display: "block" }}>Protected area. Unauthorized access is not allowed.</Typography>
         </Paper>
+        {ToastComponent}
       </Box>
     );
   }
@@ -79,7 +97,7 @@ export default function Admin() {
               <Box><Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>Teacher Dashboard</Typography><Typography variant="caption" sx={{ color: "grey.500" }}>Manage student enquiries</Typography></Box>
             </Stack>
             <Stack direction="row" spacing={3} sx={{ alignItems: "center" }}>
-              <Chip size="small" label={connected ? "Live" : "Offline"} color={connected ? "success" : "error"} variant="outlined" />
+              <Chip size="small" label="Live" color="success" variant="outlined" />
               <IconButton href="/" size="small" sx={{ color: "grey.500", fontSize: "0.75rem" }}>View Site</IconButton>
               <Button size="small" onClick={() => { sessionStorage.removeItem("admin_auth"); setAuthenticated(false); }} sx={{ color: "grey.500", textTransform: "none", fontSize: "0.75rem" }}>Logout</Button>
             </Stack>
