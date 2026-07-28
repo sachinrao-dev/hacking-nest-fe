@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Box, Typography, TextField, Button, Paper, Stack, Avatar, Chip, AppBar, Toolbar, Container, IconButton, MenuItem } from "@mui/material";
 import type { ContactFormData } from "../types";
 import { useToast } from "../hooks/useToast";
+import { API_BASE } from "../config";
 
 interface Contact extends ContactFormData { id: number; createdAt: string; }
 
@@ -35,7 +36,7 @@ export default function Admin() {
 
     async function fetchContacts() {
       try {
-        const res = await fetch("/api/contacts");
+        const res = await fetch(`${API_BASE}/api/contacts`);
         const data: Contact[] = await res.json();
         setContacts((prev) => {
           if (prev.length > 0 && data.length > prev.length) {

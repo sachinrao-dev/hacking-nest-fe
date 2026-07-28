@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Box, Container, Typography, TextField, Button, MenuItem, Paper, Stack } from "@mui/material";
 import type { ContactFormData } from "../types";
 import { useToast } from "../hooks/useToast";
+import { API_BASE } from "../config";
 
 const courseOptions = [
   "CEH - Certified Ethical Hacking",
@@ -23,7 +24,7 @@ export default function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
+      const res = await fetch(`${API_BASE}/api/contact`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
       if (!res.ok) throw new Error("Failed");
       show("Thank you for your interest! Our team will contact you within 24 hours.");
       setFormData({ name: "", email: "", phone: "", course: "", message: "" });
