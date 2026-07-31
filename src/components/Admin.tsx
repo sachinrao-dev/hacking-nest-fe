@@ -3,6 +3,7 @@ import { Box, Typography, TextField, Button, Paper, Stack, Avatar, Chip, AppBar,
 import type { ContactFormData } from "../types";
 import { useToast } from "../hooks/useToast";
 import { API_BASE } from "../config";
+import Seo from "./Seo";
 
 interface Contact extends ContactFormData { id: number; createdAt: string; }
 
@@ -72,6 +73,7 @@ export default function Admin() {
   if (!authenticated) {
     return (
       <Box sx={{ minHeight: "100vh", bgcolor: "#000", display: "flex", alignItems: "center", justifyContent: "center", px: 2 }}>
+        <Seo title="Admin Login | Hacking Nest" />
         <Paper sx={{ p: 5, maxWidth: 400, width: "100%", bgcolor: "#18181b", border: "1px solid rgba(6,182,212,0.2)", textAlign: "center" }}>
           <Avatar sx={{ width: 64, height: 64, bgcolor: "primary.main", mx: "auto", mb: 2, fontSize: "1.5rem", fontWeight: 900 }}>HN</Avatar>
           <Typography variant="h5" sx={{ fontWeight: 900, mb: 1 }}>Teacher Dashboard</Typography>
@@ -90,6 +92,7 @@ export default function Admin() {
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#000" }}>
+      <Seo title="Teacher Dashboard | Hacking Nest" />
       <AppBar position="static" sx={{ bgcolor: "#0a0a0a", boxShadow: "0 1px 0 rgba(6,182,212,0.1)" }}>
         <Container maxWidth="xl">
           <Toolbar sx={{ justifyContent: "space-between" }}>
