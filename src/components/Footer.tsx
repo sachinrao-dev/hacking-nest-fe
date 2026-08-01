@@ -47,7 +47,7 @@ export default function Footer() {
               <Stack spacing={1}>
                 <Typography variant="body2" sx={{ color: "grey.500" }}>V Floor 44 Tower, Jenny Plaza,</Typography>
                 <Typography variant="body2" sx={{ color: "grey.500" }}>No 7, Bharathiar Salai, NIT Trichy,</Typography>
-                <Typography variant="body2" sx={{ color: "grey.500" }}>Tiruchirappalli - 620001</Typography>
+                <Typography variant="body2" sx={{ color: "grey.500" }}>Cantonment, Tiruchirappalli Cantt - 620001</Typography>
                 <Typography variant="body2" sx={{ color: "grey.500" }}>info@hackingnest.com</Typography>
                 <Typography variant="body2" sx={{ color: "grey.500" }}>+91 89206 70367</Typography>
               </Stack>

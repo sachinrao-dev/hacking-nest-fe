@@ -48,7 +48,7 @@ export default function Contact() {
 
             <Stack spacing={3}>
               {[
-                { icon: "📍", label: "Visit Us", value: "V Floor 44 Tower, Jenny Plaza, No 7,\nBharathiar Salai, NIT Trichy,\nTiruchirappalli - 620001" },
+                { icon: "📍", label: "Visit Us", value: "V Floor 44 Tower, Jenny Plaza, No 7,\nBharathiar Salai, NIT Trichy, Cantonment,\nTiruchirappalli Cantt - 620001" },
                 { icon: "📧", label: "Email", value: "info@hackingnest.com" },
                 { icon: "📞", label: "Call Us", value: "+91 89206 70367" },
               ].map((item) => (
