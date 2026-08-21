@@ -3,6 +3,7 @@ import { Box, Container, Typography, TextField, Button, MenuItem, Paper, Stack }
 import type { ContactFormData } from "../types";
 import { useToast } from "../hooks/useToast";
 import { API_BASE } from "../config";
+import { trackLead } from "../utils/google-ads";
 
 const courseOptions = [
   "CEH - Certified Ethical Hacking",
@@ -28,6 +29,7 @@ export default function Contact() {
       if (!res.ok) throw new Error("Failed");
       show("Thank you for your interest! Our team will contact you within 24 hours.");
       setFormData({ name: "", email: "", phone: "", course: "", message: "" });
+      trackLead();
     } catch { show("Something went wrong. Please try again.", "error"); }
     finally { setIsSubmitting(false); }
   };
