@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from "react";
-import { Box, Container, Typography, TextField, Button, MenuItem, Paper, Stack } from "@mui/material";
-import type { ContactFormData } from "../types";
+import { Box, Container, Typography, TextField, Button, MenuItem, Paper, Stack, InputLabel, Select, FormControl } from "@mui/material";
+import type { ContactFormData, CreateContactResponse } from "../types";
 import { useToast } from "../hooks/useToast";
-import { API_BASE } from "../config";
+import { client, CREATE_CONTACT } from "../lib/apollo";
 import { trackLead } from "../utils/google-ads";
 
 const courseOptions = [
@@ -17,7 +17,7 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { show, ToastComponent } = useToast();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: { target: { name: string; value: string } }) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -25,9 +25,12 @@ export default function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${API_BASE}/api/contact`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
-      if (!res.ok) throw new Error("Failed");
-      show("Thank you for your interest! Our team will contact you within 24 hours.");
+      const { data } = await client.mutate<{ createContact: CreateContactResponse }>({
+        mutation: CREATE_CONTACT,
+        variables: { input: formData },
+      });
+      if (!data?.createContact.success) throw new Error(data?.createContact.message ?? "Failed");
+      show(data.createContact.message ?? "Thank you for your interest! Our team will contact you within 24 hours.");
       setFormData({ name: "", email: "", phone: "", course: "", message: "" });
       trackLead();
     } catch { show("Something went wrong. Please try again.", "error"); }
@@ -70,13 +73,16 @@ export default function Contact() {
               <Stack spacing={3}>
                 <TextField name="name" label="Full Name" value={formData.name} onChange={handleChange} required fullWidth size="small" />
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                  <TextField name="email" label="Email" type="email" value={formData.email} onChange={handleChange} required fullWidth size="small" />
+                  <TextField name="email" label="Email" type="email" value={formData.email} onChange={handleChange} fullWidth size="small" />
                   <TextField name="phone" label="Phone" type="tel" value={formData.phone} onChange={handleChange} required fullWidth size="small" />
                 </Stack>
-                <TextField name="course" label="Interested Course" value={formData.course} onChange={handleChange} required select fullWidth size="small">
-                  <MenuItem value="">Select a course</MenuItem>
-                  {courseOptions.map((opt) => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
-                </TextField>
+                <FormControl fullWidth size="small">
+                  <InputLabel id="course-label">Interested Course</InputLabel>
+                  <Select name="course" labelId="course-label" value={formData.course} onChange={handleChange} label="Interested Course">
+                    <MenuItem value="">Select a course</MenuItem>
+                    {courseOptions.map((opt) => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                  </Select>
+                </FormControl>
                 <TextField name="message" label="Message (Optional)" value={formData.message} onChange={handleChange} multiline rows={4} fullWidth size="small" />
                 <Button type="submit" variant="contained" size="large" disabled={isSubmitting} sx={{ background: "linear-gradient(90deg, #06b6d4, #2563eb)", textTransform: "none", fontWeight: 700, py: 1.5, borderRadius: 2, "&:hover": { background: "linear-gradient(90deg, #0891b2, #1d4ed8)" } }}>
                   {isSubmitting ? "Submitting..." : "Submit Enquiry"}

@@ -39,8 +39,32 @@ export interface Testimonial {
 
 export interface ContactFormData {
   name: string;
+  email?: string;
+  phone: string;
+  course?: string;
+  message: string;
+}
+
+export interface Contact {
+  id: number;
+  name: string;
   email: string;
   phone: string;
   course: string;
   message: string;
+  createdAt: string;
+}
+
+export interface CreateContactResponse {
+  success: boolean;
+  message: string;
+  contact?: {
+    id: number;
+    name: string;
+    email: string;
+  };
+}
+
+export interface GetContactsResponse {
+  contacts: Contact[];
 }

@@ -1,11 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { Box, Typography, TextField, Button, Paper, Stack, Avatar, Chip, AppBar, Toolbar, Container, IconButton, MenuItem } from "@mui/material";
-import type { ContactFormData } from "../types";
+import type { Contact, GetContactsResponse } from "../types";
 import { useToast } from "../hooks/useToast";
-import { API_BASE } from "../config";
+import { client, GET_CONTACTS } from "../lib/apollo";
 import Seo from "./Seo";
-
-interface Contact extends ContactFormData { id: number; createdAt: string; }
 
 const ADMIN_PASSWORD = "hackingnest2026";
 const POLL_INTERVAL = 5000;
@@ -37,15 +35,18 @@ export default function Admin() {
 
     async function fetchContacts() {
       try {
-        const res = await fetch(`${API_BASE}/api/contacts`);
-        const data: Contact[] = await res.json();
+        const { data } = await client.query<GetContactsResponse>({
+          query: GET_CONTACTS,
+          fetchPolicy: "network-only",
+        });
+        const fetchedContacts = data?.contacts ?? [];
         setContacts((prev) => {
-          if (prev.length > 0 && data.length > prev.length) {
-            const diff = data.length - prev.length;
+          if (prev.length > 0 && fetchedContacts.length > prev.length) {
+            const diff = fetchedContacts.length - prev.length;
             setNewCount((c) => c + diff);
-            show(`New enquiry from ${data[0]?.name ?? "a student"}`);
+            show(`New enquiry from ${fetchedContacts[0]?.name ?? "a student"}`);
           }
-          return data;
+          return fetchedContacts;
         });
       } catch { /* ignore */ }
     }
@@ -64,7 +65,7 @@ export default function Admin() {
 
   const filtered = contacts.filter((c) => {
     const s = search.toLowerCase();
-    const matchSearch = c.name.toLowerCase().includes(s) || c.email.toLowerCase().includes(s) || (c.phone && c.phone.includes(s));
+    const matchSearch = c.name.toLowerCase().includes(s) || c.email?.toLowerCase().includes(s) || (c.phone && c.phone.includes(s));
     const matchCourse = filterCourse === "all" || (c.course && c.course.toLowerCase().includes(filterCourse.toLowerCase()));
     return matchSearch && matchCourse;
   });
