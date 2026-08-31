@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Box, Container, Typography, TextField, Button, MenuItem, Paper, Stack, InputLabel, Select, FormControl } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Paper, Stack } from "@mui/material";
 import type { ContactFormData, CreateContactResponse } from "../types";
 import { useToast } from "../hooks/useToast";
 import { client, CREATE_CONTACT } from "../lib/apollo";
@@ -38,12 +38,12 @@ export default function Contact() {
   };
 
   return (<>
-    <Box id="contact" sx={{ py: 12, px: 3, bgcolor: "#0a0a0a" }}>
+    <Box id="contact" sx={{ py: { xs: 6, md: 12 }, px: { xs: 2, md: 3 }, bgcolor: "#0a0a0a" }}>
       <Container maxWidth="lg">
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 8, alignItems: "start" }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: { xs: 4, md: 8 }, alignItems: "start" }}>
           <Box>
             <Typography variant="overline" sx={{ color: "primary.main", fontWeight: 700, letterSpacing: 3 }}>Get In Touch</Typography>
-            <Typography variant="h3" sx={{ fontWeight: 900, mt: 1, mb: 3 }}>
+            <Typography sx={{ fontSize: { xs: "1.75rem", md: "3rem" }, fontWeight: 900, mt: 1, mb: 3 }}>
               Ready to Start Your{" "}
               <Box component="span" sx={{ background: "linear-gradient(90deg, #06b6d4, #8b5cf6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Cybersecurity Journey?</Box>
             </Typography>
@@ -68,21 +68,40 @@ export default function Contact() {
             </Stack>
           </Box>
 
-          <Paper sx={{ p: 5, bgcolor: "#18181b", border: "1px solid rgba(6,182,212,0.1)" }}>
+          <Paper sx={{ p: { xs: 3, md: 5 }, bgcolor: "#18181b", border: "1px solid rgba(6,182,212,0.1)" }}>
             <form onSubmit={handleSubmit}>
-              <Stack spacing={3}>
+              <Stack spacing={{ xs: 2.5, md: 3 }}>
                 <TextField name="name" label="Full Name" value={formData.name} onChange={handleChange} required fullWidth size="small" />
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                   <TextField name="email" label="Email" type="email" value={formData.email} onChange={handleChange} fullWidth size="small" />
                   <TextField name="phone" label="Phone" type="tel" value={formData.phone} onChange={handleChange} required fullWidth size="small" />
                 </Stack>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="course-label">Interested Course</InputLabel>
-                  <Select name="course" labelId="course-label" value={formData.course} onChange={handleChange} label="Interested Course">
-                    <MenuItem value="">Select a course</MenuItem>
-                    {courseOptions.map((opt) => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
-                  </Select>
-                </FormControl>
+                <Box component="select" name="course" value={formData.course} onChange={handleChange}
+                  sx={{
+                    width: "100%",
+                    height: "40px",
+                    px: "14px",
+                    fontSize: "0.875rem",
+                    fontFamily: "Roboto, sans-serif",
+                    letterSpacing: "inherit",
+                    color: formData.course ? "#fff" : "rgba(255,255,255,0.7)",
+                    bgcolor: "transparent",
+                    border: "1px solid rgba(255,255,255,0.23)",
+                    borderRadius: "4px",
+                    outline: "none",
+                    cursor: "pointer",
+                    appearance: "none",
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "right 12px center",
+                    pr: "36px",
+                    "&:focus": { borderColor: "#06b6d4" },
+                    "& option": { bgcolor: "#18181b", color: "#fff", py: 1 },
+                  }}
+                >
+                  <option value="">Select a course</option>
+                  {courseOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                </Box>
                 <TextField name="message" label="Message (Optional)" value={formData.message} onChange={handleChange} multiline rows={4} fullWidth size="small" />
                 <Button type="submit" variant="contained" size="large" disabled={isSubmitting} sx={{ background: "linear-gradient(90deg, #06b6d4, #2563eb)", textTransform: "none", fontWeight: 700, py: 1.5, borderRadius: 2, "&:hover": { background: "linear-gradient(90deg, #0891b2, #1d4ed8)" } }}>
                   {isSubmitting ? "Submitting..." : "Submit Enquiry"}
