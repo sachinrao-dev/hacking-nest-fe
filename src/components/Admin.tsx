@@ -71,6 +71,46 @@ export default function Admin() {
   });
   const uniqueCourses = [...new Set(contacts.map((c) => c.course).filter(Boolean))];
 
+  const renderDetails = (c: Contact) => (
+    <Paper sx={{ p: { xs: 3, md: 5 }, bgcolor: "#18181b", border: "1px solid rgba(6,182,212,0.2)", position: { xs: "static", lg: "sticky" }, top: 20 }}>
+      <Stack direction="row" spacing={3} sx={{ alignItems: "center", mb: { xs: 3, md: 5 }, minWidth: 0 }}>
+        <Avatar sx={{ bgcolor: "primary.main", width: { xs: 48, md: 64 }, height: { xs: 48, md: 64 }, fontWeight: 900, fontSize: { xs: "1.2rem", md: "1.5rem" }, flexShrink: 0 }}>{getInitials(c.name)}</Avatar>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="h6" sx={{ fontWeight: 900, fontSize: { xs: "1.1rem", md: "1.5rem" }, wordBreak: "break-word" }}>{c.name}</Typography>
+          <Typography variant="caption" sx={{ color: "grey.500", wordBreak: "break-word" }}>Enquiry #{c.id} • {new Date(c.createdAt).toLocaleString()}</Typography>
+        </Box>
+      </Stack>
+
+      <Stack spacing={3}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
+          <Paper sx={{ p: 3, bgcolor: "#27272a", minWidth: 0 }}>
+            <Typography variant="caption" sx={{ color: "grey.500", display: "block", mb: 0.5 }}>Email</Typography>
+            <Typography variant="body2" component="a" href={`mailto:${c.email}`} sx={{ color: "primary.main", textDecoration: "none", wordBreak: "break-all" }}>{c.email}</Typography>
+          </Paper>
+          <Paper sx={{ p: 3, bgcolor: "#27272a", minWidth: 0 }}>
+            <Typography variant="caption" sx={{ color: "grey.500", display: "block", mb: 0.5 }}>Phone</Typography>
+            {c.phone ? <Typography variant="body2" component="a" href={`tel:${c.phone}`} sx={{ color: "primary.main", textDecoration: "none", wordBreak: "break-all" }}>{c.phone}</Typography> : <Typography variant="body2" sx={{ color: "grey.600" }}>Not provided</Typography>}
+          </Paper>
+        </Box>
+
+        <Paper sx={{ p: 3, bgcolor: "#27272a" }}>
+          <Typography variant="caption" sx={{ color: "grey.500", display: "block", mb: 1 }}>Interested Course</Typography>
+          {c.course ? <Chip label={c.course} size="small" sx={{ bgcolor: `${getCourseColor(c.course)}20`, color: getCourseColor(c.course), border: `1px solid ${getCourseColor(c.course)}40`, maxWidth: "100%", "& .MuiChip-label": { whiteSpace: "normal" } }} /> : <Typography variant="body2" sx={{ color: "grey.600" }}>Not specified</Typography>}
+        </Paper>
+
+        <Paper sx={{ p: 3, bgcolor: "#27272a" }}>
+          <Typography variant="caption" sx={{ color: "grey.500", display: "block", mb: 1 }}>Message</Typography>
+          <Typography variant="body2" sx={{ color: "grey.300", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{c.message || "No message"}</Typography>
+        </Paper>
+
+        <Stack direction={{ xs: "column", md: "row" }} spacing={{ xs: 1.5, md: 2 }}>
+          <Button href={`mailto:${c.email}?subject=Hacking Nest - Course Details&body=Hi ${c.name},%0A%0AThank you for your interest in ${c.course ?? "our courses"} at Hacking Nest.`} variant="contained" fullWidth sx={{ background: "linear-gradient(90deg, #06b6d4, #2563eb)", textTransform: "none", fontWeight: 700, py: 1.5 }}>📧 Reply via Email</Button>
+          {c.phone && <Button href={`https://wa.me/91${c.phone.replace(/\D/g, "")}`} target="_blank" variant="contained" fullWidth sx={{ bgcolor: "#22c55e", textTransform: "none", fontWeight: 700, py: 1.5, "&:hover": { bgcolor: "#16a34a" } }}>💬 WhatsApp</Button>}
+        </Stack>
+      </Stack>
+    </Paper>
+  );
+
   if (!authenticated) {
     return (
       <Box sx={{ minHeight: "100vh", bgcolor: "#000", display: "flex", alignItems: "center", justifyContent: "center", px: 2 }}>
@@ -92,7 +132,7 @@ export default function Admin() {
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#000" }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "#000", overflowX: "hidden" }}>
       <Seo title="Teacher Dashboard | Hacking Nest" />
       <AppBar position="static" sx={{ bgcolor: "#0a0a0a", boxShadow: "0 1px 0 rgba(6,182,212,0.1)" }}>
         <Container maxWidth="xl">
@@ -101,7 +141,7 @@ export default function Admin() {
               <Avatar sx={{ bgcolor: "primary.main", width: 36, height: 36, fontSize: "0.8rem", fontWeight: 900 }}>HN</Avatar>
               <Box><Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>Teacher Dashboard</Typography><Typography variant="caption" sx={{ color: "grey.500" }}>Manage student enquiries</Typography></Box>
             </Stack>
-            <Stack direction="row" spacing={3} sx={{ alignItems: "center" }}>
+            <Stack direction="row" spacing={3} sx={{ alignItems: "center", flexWrap: "wrap", justifyContent: { xs: "flex-end", md: "flex-start" } }}>
               <Chip size="small" label="Live" color="success" variant="outlined" />
               <IconButton href="/" size="small" sx={{ color: "grey.500", fontSize: "0.75rem" }}>View Site</IconButton>
               <Button size="small" onClick={() => { sessionStorage.removeItem("admin_auth"); setAuthenticated(false); }} sx={{ color: "grey.500", textTransform: "none", fontSize: "0.75rem" }}>Logout</Button>
@@ -110,24 +150,24 @@ export default function Admin() {
         </Container>
       </AppBar>
 
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2, mb: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4, px: { xs: 2, md: 3 } }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(4, 1fr)" }, gap: { xs: 1.5, md: 2 }, mb: 4 }}>
           {[
             { val: contacts.length, label: "Total Enquiries", color: "#06b6d4" },
             { val: newCount, label: "New Today", color: "#22c55e" },
             { val: uniqueCourses.length, label: "Courses Enquired", color: "#8b5cf6" },
             { val: contacts.filter((c) => c.phone).length, label: "With Phone", color: "#eab308" },
           ].map((s) => (
-            <Paper key={s.label} sx={{ p: 3, bgcolor: "#18181b", border: "1px solid rgba(6,182,212,0.1)" }}>
-              <Typography variant="h4" sx={{ fontWeight: 900, color: s.color }}>{s.val}</Typography>
-              <Typography variant="caption" sx={{ color: "grey.500" }}>{s.label}</Typography>
+            <Paper key={s.label} sx={{ p: { xs: 2, md: 3 }, bgcolor: "#18181b", border: "1px solid rgba(6,182,212,0.1)" }}>
+              <Typography variant="h5" sx={{ fontWeight: 900, color: s.color, fontSize: { xs: "1.5rem", md: "2.125rem" } }}>{s.val}</Typography>
+              <Typography variant="caption" sx={{ color: "grey.500", fontSize: { xs: "0.65rem", md: "0.75rem" } }}>{s.label}</Typography>
             </Paper>
           ))}
         </Box>
 
-        {newCount > 0 && <Paper sx={{ p: 2, mb: 3, bgcolor: "rgba(6,182,212,0.1)", border: "1px solid rgba(6,182,212,0.3)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        {newCount > 0 && <Paper sx={{ p: 2, mb: 3, bgcolor: "rgba(6,182,212,0.1)", border: "1px solid rgba(6,182,212,0.3)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
           <Typography sx={{ color: "primary.main", fontWeight: 700 }}>{newCount} new submission{newCount > 1 ? "s" : ""} received!</Typography>
-          <Button size="small" onClick={() => setNewCount(0)} sx={{ color: "primary.main", textTransform: "none" }}>Dismiss</Button>
+          <Button size="small" onClick={() => setNewCount(0)} sx={{ color: "primary.main", textTransform: "none", flexShrink: 0 }}>Dismiss</Button>
         </Paper>}
 
         <Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ mb: 3 }}>
@@ -142,65 +182,34 @@ export default function Admin() {
           <Box sx={{ textAlign: "center", py: 10 }}><Typography sx={{ color: "grey.600" }}>{contacts.length === 0 ? "No submissions yet" : "No matching results"}</Typography></Box>
         ) : (
           <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "2fr 3fr" }, gap: 3 }}>
-            <Stack spacing={1.5} sx={{ maxHeight: "70vh", overflow: "auto" }}>
+            <Stack spacing={1.5} sx={{ maxHeight: { xs: "none", lg: "70vh" }, overflow: { xs: "visible", lg: "auto" } }}>
               {filtered.map((c) => (
-                <Paper key={c.id} onClick={() => setSelected(c)} sx={{ p: 2.5, cursor: "pointer", bgcolor: selected?.id === c.id ? "rgba(6,182,212,0.1)" : "#18181b", border: selected?.id === c.id ? "1px solid rgba(6,182,212,0.4)" : "1px solid rgba(6,182,212,0.1)", transition: "all 0.2s", "&:hover": { borderColor: "rgba(6,182,212,0.3)" } }}>
-                  <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
-                    <Avatar sx={{ bgcolor: "primary.main", width: 40, height: 40, fontWeight: 700, fontSize: "0.8rem" }}>{getInitials(c.name)}</Avatar>
-                    <Box sx={{ minWidth: 0, flex: 1 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 700 }} noWrap>{c.name}</Typography>
-                      <Typography variant="caption" sx={{ color: "grey.500" }} noWrap>{c.email}</Typography>
-                    </Box>
-                  </Stack>
-                  <Stack direction="row" spacing={1} sx={{ mt: 1.5, alignItems: "center" }}>
-                    {c.course && <Chip label={c.course.split(" ")[0]} size="small" sx={{ bgcolor: `${getCourseColor(c.course)}20`, color: getCourseColor(c.course), border: `1px solid ${getCourseColor(c.course)}40`, fontSize: "0.65rem", height: 22 }} />}
-                    <Typography variant="caption" sx={{ color: "grey.600", ml: "auto" }}>{new Date(c.createdAt).toLocaleDateString()}</Typography>
-                  </Stack>
-                </Paper>
+                <Box key={c.id}>
+                  <Paper onClick={() => setSelected(selected?.id === c.id ? null : c)} sx={{ p: 2.5, cursor: "pointer", bgcolor: selected?.id === c.id ? "rgba(6,182,212,0.1)" : "#18181b", border: selected?.id === c.id ? "1px solid rgba(6,182,212,0.4)" : "1px solid rgba(6,182,212,0.1)", transition: "all 0.2s", "&:hover": { borderColor: "rgba(6,182,212,0.3)" } }}>
+                    <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+                      <Avatar sx={{ bgcolor: "primary.main", width: 40, height: 40, fontWeight: 700, fontSize: "0.8rem" }}>{getInitials(c.name)}</Avatar>
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700 }} noWrap>{c.name}</Typography>
+                        <Typography variant="caption" sx={{ color: "grey.500" }} noWrap>{c.email}</Typography>
+                      </Box>
+                    </Stack>
+                    <Stack direction="row" spacing={1} sx={{ mt: 1.5, alignItems: "center" }}>
+                      {c.course && <Chip label={c.course.split(" ")[0]} size="small" sx={{ bgcolor: `${getCourseColor(c.course)}20`, color: getCourseColor(c.course), border: `1px solid ${getCourseColor(c.course)}40`, fontSize: "0.65rem", height: 22 }} />}
+                      <Typography variant="caption" sx={{ color: "grey.600", ml: "auto" }}>{new Date(c.createdAt).toLocaleDateString()}</Typography>
+                    </Stack>
+                  </Paper>
+                  {selected?.id === c.id && (
+                    <Box sx={{ display: { xs: "block", lg: "none" }, mt: 1.5 }}>{renderDetails(selected)}</Box>
+                  )}
+                </Box>
               ))}
             </Stack>
 
-            <Box>
+            <Box sx={{ display: { xs: "none", lg: "block" } }}>
               {selected ? (
-                <Paper sx={{ p: 5, bgcolor: "#18181b", border: "1px solid rgba(6,182,212,0.2)", position: "sticky", top: 20 }}>
-                  <Stack direction="row" spacing={3} sx={{ alignItems: "center", mb: 5 }}>
-                    <Avatar sx={{ bgcolor: "primary.main", width: 64, height: 64, fontWeight: 900, fontSize: "1.5rem" }}>{getInitials(selected.name)}</Avatar>
-                    <Box>
-                      <Typography variant="h5" sx={{ fontWeight: 900 }}>{selected.name}</Typography>
-                      <Typography variant="caption" sx={{ color: "grey.500" }}>Enquiry #{selected.id} • {new Date(selected.createdAt).toLocaleString()}</Typography>
-                    </Box>
-                  </Stack>
-
-                  <Stack spacing={3}>
-                    <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
-                      <Paper sx={{ p: 3, bgcolor: "#27272a" }}>
-                        <Typography variant="caption" sx={{ color: "grey.500", display: "block", mb: 0.5 }}>Email</Typography>
-                        <Typography variant="body2" component="a" href={`mailto:${selected.email}`} sx={{ color: "primary.main", textDecoration: "none", wordBreak: "break-all" }}>{selected.email}</Typography>
-                      </Paper>
-                      <Paper sx={{ p: 3, bgcolor: "#27272a" }}>
-                        <Typography variant="caption" sx={{ color: "grey.500", display: "block", mb: 0.5 }}>Phone</Typography>
-                        {selected.phone ? <Typography variant="body2" component="a" href={`tel:${selected.phone}`} sx={{ color: "primary.main", textDecoration: "none" }}>{selected.phone}</Typography> : <Typography variant="body2" sx={{ color: "grey.600" }}>Not provided</Typography>}
-                      </Paper>
-                    </Box>
-
-                    <Paper sx={{ p: 3, bgcolor: "#27272a" }}>
-                      <Typography variant="caption" sx={{ color: "grey.500", display: "block", mb: 1 }}>Interested Course</Typography>
-                      {selected.course ? <Chip label={selected.course} size="small" sx={{ bgcolor: `${getCourseColor(selected.course)}20`, color: getCourseColor(selected.course), border: `1px solid ${getCourseColor(selected.course)}40` }} /> : <Typography variant="body2" sx={{ color: "grey.600" }}>Not specified</Typography>}
-                    </Paper>
-
-                    <Paper sx={{ p: 3, bgcolor: "#27272a" }}>
-                      <Typography variant="caption" sx={{ color: "grey.500", display: "block", mb: 1 }}>Message</Typography>
-                      <Typography variant="body2" sx={{ color: "grey.300" }}>{selected.message || "No message"}</Typography>
-                    </Paper>
-
-                    <Stack direction="row" spacing={2}>
-                      <Button href={`mailto:${selected.email}?subject=Hacking Nest - Course Details&body=Hi ${selected.name},%0A%0AThank you for your interest in ${selected.course ?? "our courses"} at Hacking Nest.`} variant="contained" fullWidth sx={{ background: "linear-gradient(90deg, #06b6d4, #2563eb)", textTransform: "none", fontWeight: 700, py: 1.5 }}>📧 Reply via Email</Button>
-                      {selected.phone && <Button href={`https://wa.me/91${selected.phone.replace(/\D/g, "")}`} target="_blank" variant="contained" fullWidth sx={{ bgcolor: "#22c55e", textTransform: "none", fontWeight: 700, py: 1.5, "&:hover": { bgcolor: "#16a34a" } }}>💬 WhatsApp</Button>}
-                    </Stack>
-                  </Stack>
-                </Paper>
+                renderDetails(selected)
               ) : (
-                <Box sx={{ display: { xs: "none", lg: "flex" }, alignItems: "center", justifyContent: "center", height: 300, color: "grey.600" }}>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300, color: "grey.600" }}>
                   <Typography>Select a student to view details</Typography>
                 </Box>
               )}
