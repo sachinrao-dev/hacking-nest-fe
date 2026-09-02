@@ -55,7 +55,7 @@ export default function Contact() {
               {[
                 { icon: "📍", label: "Visit Us", value: "V Floor 44 Tower, Jenny Plaza, No 7,\nBharathiar Salai, NIT Trichy, Cantonment,\nTiruchirappalli Cantt - 620001" },
                 { icon: "📧", label: "Email", value: "info@hackingnest.com" },
-                { icon: "📞", label: "Call Us", value: "+91 89206 70367" },
+                { icon: "📞", label: "Call Us", value: "+91 8920512965" },
               ].map((item) => (
                 <Stack key={item.label} direction="row" spacing={2} sx={{ alignItems: "flex-start" }}>
                   <Paper sx={{ width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "rgba(6,182,212,0.1)", flexShrink: 0 }}>{item.icon}</Paper>
