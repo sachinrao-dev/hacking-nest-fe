@@ -49,7 +49,7 @@ export default function Footer() {
                 <Typography variant="body2" sx={{ color: "grey.500" }}>No 7, Bharathiar Salai, NIT Trichy,</Typography>
                 <Typography variant="body2" sx={{ color: "grey.500" }}>Cantonment, Tiruchirappalli Cantt - 620001</Typography>
                 <Typography variant="body2" sx={{ color: "grey.500" }}>info@hackingnest.com</Typography>
-                <Typography variant="body2" sx={{ color: "grey.500" }}>+91 89206 70367</Typography>
+                <Typography variant="body2" sx={{ color: "grey.500" }}>+91 8920512965</Typography>
               </Stack>
               <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
                 <IconButton href="https://wa.me/918920670367" target="_blank" size="small" sx={{ bgcolor: "rgba(34,197,94,0.2)", color: "#22c55e", "&:hover": { bgcolor: "rgba(34,197,94,0.3)" } }}>WA</IconButton>
